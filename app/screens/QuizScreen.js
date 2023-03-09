@@ -31,8 +31,10 @@ const QuizScreen = () => {
     const changeData = (array) => {
         if(array != null){
             for(var i=0; i< array.length; i++){
-                array[i].incorrect_answers.push(array[i].correct_answer);
+                // array[i].incorrect_answers.push(array[i].correct_answer);
+                array[i].incorrect_answers.splice(Math.floor((Math.random() * array[i].incorrect_answers.length)), 0, array[i].correct_answer);
             }
+            console.log(array);
             setAllQuestion(array);
         }
     }
