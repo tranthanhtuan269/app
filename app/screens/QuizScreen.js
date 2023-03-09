@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, Modal, Animated, StyleSheet, ActivityIndicator } from 'react-native'
 import { COLORS, SIZES } from '../constants';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import HTMLView from 'react-native-htmlview';
+import { decode } from 'html-entities'
 
 const QuizScreen = () => {
     
@@ -109,17 +109,10 @@ const QuizScreen = () => {
                 </View>
 
                 {/* Question */}
-                {/* <Text style={{
+                <Text style={{
                     color: COLORS.white,
                     fontSize: 30
-                }}>{allQuestions[currentQuestionIndex]?.question}</Text> */}
-                <HTMLView
-                    value={allQuestions[currentQuestionIndex]?.question}
-                    stylesheet={{
-                        color: COLORS.white,
-                        fontSize: 30
-                    }}
-                />
+                }}>{decode(allQuestions[currentQuestionIndex]?.question)}</Text>
             </View>
         )
     }
@@ -151,11 +144,7 @@ const QuizScreen = () => {
                             marginVertical: 10
                         }}
                         >
-                            {/* <Text style={{fontSize: 20, color: COLORS.white}}>{option}</Text> */}
-                            <HTMLView
-                                value={option}
-                                stylesheet={{fontSize: 20, color: COLORS.white}}
-                            />
+                            <Text style={{fontSize: 20, color: COLORS.white}}>{decode(option)}</Text>
 
                             {/* Show Check Or Cross Icon based on correct answer*/}
                             {
