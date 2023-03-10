@@ -1,5 +1,5 @@
 {
-  "name": "App",
+  "name": "dau_truong_dat_viet",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
+    "html-entities": "^2.3.3",
     "react": "18.2.0",
     "react-native": "0.71.3",
     "react-native-htmlview": "^0.16.0",
