@@ -1,43 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  Text,
   View,
+  Image,
   Button,
   TextInput,
-  StyleSheet
+  StyleSheet,
+  Alert
 } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
-  const [Username, setUsername] = React.useState('');
-  const [Password, setPassword] = React.useState('');
+  const [Username, setUsername] = useState('');
+
+  const getData = () => {
+    try {
+        AsyncStorage.getItem('Username')
+        .then(value => {
+            if(value != null){
+              navigation.navigate('Quiz');
+            }
+        })
+    } catch (error) {
+        console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   const LoginEvent = async () => {
-    navigation.navigate('Quiz')
-    // try {
-    //   const response = await fetch(
-    //     'http://10./api/login',
-    //     {
-    //       method: 'POST',
-    //       headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({
-    //         email: Username,
-    //         password: Password,
-    //       }),
-    //     }
-    //   );
-    //   const json = await response.json();
-    //   console.log(json)
-    //   return json;
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    if(Username.length == 0){
+      Alert.alert('Warning!', 'Please enter your name!');
+    }else{
+      try {
+        await AsyncStorage.setItem('Username', Username);
+        navigation.navigate('Quiz');
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   return (
     <View style={styles.container}>
+      <Image 
+        style={styles.logo}
+        source={require('../assets/images/playstore.png')}
+        />
+        <Text style={styles.text}>Đấu trường Đất Việt</Text>
       <TextInput
         style={styles.input}
         onChangeText={(name) => {
@@ -46,20 +58,9 @@ const LoginScreen = ({navigation}) => {
         value={Username}
         placeholder="Username"
       />
-      <TextInput
-        style={styles.input}
-        onChangeText={(pass) => {
-          setPassword(pass)
-        }}
-        value={Password}
-        placeholder="Password"
-      />
       <Button 
         style={styles.loginBtn}
         title="Login"
-        // onPress={() =>
-        //   navigation.navigate('Profile', {name: 'Jane'})
-        // }
         onPress={LoginEvent}
       />
     </View>
@@ -68,19 +69,34 @@ const LoginScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
   container:{
-    padding: 10,
-
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#0080ff'
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    margin: 20
   },
   loginBtn: {
     marginTop:10,
     borderRadius: 10,
     borderWidth: 1
   },
+  text: {
+    fontSize: 30,
+    color: '#ffffff'
+  },
   input: {
-    height: 40,
-    margin: 12,
+    width: 300,
     borderWidth: 1,
-    padding: 10,
+    borderColor: '#555',
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    textAlign: 'center',
+    fontSize: 20,
+    marginTop: 130,
+    marginBottom: 10
   }
 });
 

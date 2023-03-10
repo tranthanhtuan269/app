@@ -3,9 +3,11 @@ import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, Modal, An
 import { COLORS, SIZES } from '../constants';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { decode } from 'html-entities'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const QuizScreen = () => {
     
+    const [UserName, setUserName] = useState(true);
     const [isLoading, setLoading] = useState(true);
     const [allQuestions, setAllQuestion] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -16,9 +18,22 @@ const QuizScreen = () => {
     const [showNextButton, setShowNextButton] = useState(false)
     const [showScoreModal, setShowScoreModal] = useState(false)
 
-    const getMovies = async () => {
+    const getData = () => {
         try {
-          const response = await fetch('https://opentdb.com/api.php?amount=50');
+            AsyncStorage.getItem('Username')
+            .then(value => {
+                if(value != null){
+                    setUserName(value);
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const getQuestions = async () => {
+        try {
+          const response = await fetch('https://opentdb.com/api.php?amount=5');
           const json = await response.json();
           changeData(json.results)
         } catch (error) {
@@ -40,8 +55,9 @@ const QuizScreen = () => {
     }
 
     useEffect(() => {
-        getMovies();
+        getQuestions();
         changeData();
+        getData();
     }, []);
 
     const validateAnswer = (selectedOption) => {
@@ -92,20 +108,32 @@ const QuizScreen = () => {
         }).start();
     }
 
-
-
     const renderQuestion = () => {
         return (
             <View style={{
-                marginVertical: 40
+                marginVertical: 20
             }}>
                 {/* Question Counter */}
                 <View style={{
                     flexDirection: 'row',
-                    alignItems: 'flex-end'
                 }}>
-                    <Text style={{color: COLORS.white, fontSize: 20, opacity: 0.6, marginRight: 2}}>{currentQuestionIndex+1}</Text>
-                    <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6}}>/ {allQuestions.length}</Text>
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'flex-end'
+                    }}>
+                        <Text style={{color: COLORS.white, fontSize: 20, opacity: 0.6, marginRight: 2}}>{currentQuestionIndex+1}</Text>
+                        <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6}}>/ {allQuestions.length}</Text>
+                    </View>
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        justifyContent: 'flex-end',
+                        alignItems: 'flex-start'
+                    }}>
+                        <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6, marginRight: 2, marginTop: 2}}>Score: </Text>
+                        <Text style={{color: COLORS.white, fontSize: 20, opacity: 0.6}}>{score}</Text>
+                    </View>
                 </View>
 
                 {/* Question */}
@@ -232,81 +260,81 @@ const QuizScreen = () => {
                size = "large"
                style = {styles.activityIndicator}/>
         )}
-           <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-           <View style={{
-               flex: 1,
-               paddingVertical: 40,
-               paddingHorizontal: 16,
-               backgroundColor: COLORS.background,
-               position:'relative'
-           }}>
+        {!isLoading && (
+            <View style={{
+                flex: 1,
+                paddingVertical: 40,
+                paddingHorizontal: 16,
+                backgroundColor: COLORS.background,
+                position:'relative'
+            }}>
 
-               {/* ProgressBar */}
-               { renderProgressBar() }
+                {/* ProgressBar */}
+                { renderProgressBar() }
 
-               {/* Question */}
-               {renderQuestion()}
+                {/* Question */}
+                {renderQuestion()}
 
-               {/* Options */}
-               {renderOptions()}
+                {/* Options */}
+                {renderOptions()}
 
-               {/* Next Button */}
-               {renderNextButton()}
+                {/* Next Button */}
+                {renderNextButton()}
 
-               {/* Score Modal */}
-               <Modal
-               animationType="slide"
-               transparent={true}
-               visible={showScoreModal}
-               >
-                   <View style={{
-                       flex: 1,
-                       backgroundColor: COLORS.primary,
-                       alignItems: 'center',
-                       justifyContent: 'center'
-                   }}>
-                       <View style={{
-                           backgroundColor: COLORS.white,
-                           width: '90%',
-                           borderRadius: 20,
-                           padding: 20,
-                           alignItems: 'center'
-                       }}>
-                           <Text style={{fontSize: 30, fontWeight: 'bold'}}>{ score> (allQuestions.length/2) ? 'Congratulations!' : 'Oops!' }</Text>
+                {/* Score Modal */}
+                <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showScoreModal}
+                >
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: COLORS.primary,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <View style={{
+                            backgroundColor: COLORS.white,
+                            width: '90%',
+                            borderRadius: 20,
+                            padding: 20,
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{fontSize: 30, fontWeight: 'bold'}}>{ score> (allQuestions.length/2) ? 'Congratulations!' : 'Oops!' }</Text>
 
-                           <View style={{
-                               flexDirection: 'row',
-                               justifyContent: 'flex-start',
-                               alignItems: 'center',
-                               marginVertical: 20
-                           }}>
-                               <Text style={{
-                                   fontSize: 30,
-                                   color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
-                               }}>{score}</Text>
+                            <View style={{
+                                flexDirection: 'row',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                marginVertical: 20
+                            }}>
+                                <Text style={{
+                                    fontSize: 30,
+                                    color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
+                                }}>{score}</Text>
                                 <Text style={{
                                     fontSize: 20, color: COLORS.black
                                 }}>/ { allQuestions.length }</Text>
-                           </View>
-                           {/* Retry Quiz button */}
-                           <TouchableOpacity
-                           onPress={restartQuiz}
-                           style={{
-                               backgroundColor: COLORS.accent,
-                               padding: 20, width: '100%', borderRadius: 20
-                           }}>
-                               <Text style={{
-                                   textAlign: 'center', color: COLORS.white, fontSize: 20
-                               }}>Retry Quiz</Text>
-                           </TouchableOpacity>
+                            </View>
+                            {/* Retry Quiz button */}
+                            <TouchableOpacity
+                            onPress={restartQuiz}
+                            style={{
+                                backgroundColor: COLORS.accent,
+                                padding: 20, width: '100%', borderRadius: 20
+                            }}>
+                                <Text style={{
+                                    textAlign: 'center', color: COLORS.white, fontSize: 20
+                                }}>Retry Quiz</Text>
+                            </TouchableOpacity>
 
-                       </View>
+                        </View>
 
-                   </View>
-               </Modal>
+                    </View>
+                </Modal>
 
-               {/* Background Image */}
-               <Image
+                {/* Background Image */}
+                <Image
                 source={require('../assets/images/DottedBG.png')}
                 style={{
                     width: SIZES.width,
@@ -320,8 +348,9 @@ const QuizScreen = () => {
                 }}
                 resizeMode={'contain'}
                 />
-
-           </View>
+            </View>
+        )}
+           
        </SafeAreaView>
     )
 }
